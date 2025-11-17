@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('hero');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const timelineEvents = [
     { year: '1867', event: 'Рождение в деревне Гумнищи Владимирской губернии' },
@@ -156,13 +158,48 @@ const Index = () => {
 
       <section id="произведения" className="py-20 px-6">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h2 className="text-5xl font-serif font-light mb-4">Произведения</h2>
             <p className="text-muted-foreground">Избранные стихотворения</p>
           </div>
 
+          <div className="max-w-xl mx-auto mb-12">
+            <div className="relative">
+              <Icon name="Search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Поиск по названию или тексту стихотворения..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Icon name="X" size={16} />
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="text-sm text-muted-foreground mt-2">
+                {poems.filter(poem => 
+                  poem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  poem.text.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length} {poems.filter(poem => 
+                  poem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  poem.text.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 1 ? 'результат' : 'результата'}
+              </p>
+            )}
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {poems.map((poem, index) => (
+            {poems.filter(poem => 
+              poem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              poem.text.toLowerCase().includes(searchQuery.toLowerCase())
+            ).map((poem, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow duration-300 group">
                 <CardContent className="p-6 space-y-4">
                   <div>
@@ -179,6 +216,17 @@ const Index = () => {
               </Card>
             ))}
           </div>
+          
+          {searchQuery && poems.filter(poem => 
+            poem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            poem.text.toLowerCase().includes(searchQuery.toLowerCase())
+          ).length === 0 && (
+            <div className="text-center py-12">
+              <Icon name="SearchX" size={48} className="mx-auto text-muted-foreground mb-4" />
+              <p className="text-lg text-muted-foreground">Ничего не найдено</p>
+              <p className="text-sm text-muted-foreground mt-2">Попробуйте изменить поисковый запрос</p>
+            </div>
+          )}
         </div>
       </section>
 
